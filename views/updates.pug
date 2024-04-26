@@ -1,0 +1,27 @@
+doctype html
+html 
+    head 
+        title= `${title}`
+        meta(name="viewport" content="width=device-width, initial-scale=1")
+        link(rel="stylesheet", href="/css/style.css")
+    body    
+        h1= "Update Custom Object Form | Integrating With HubSpot I Practicum"
+        table
+            thead
+                tr
+                    th Name
+                    th Technique
+                    th Music genre
+                    th Complexity level
+                    th Execution level
+                    th Description
+            tbody
+                each skill in data
+                    tr
+                        td #{skill.name}
+                        td #{skill.technique}
+                        td #{skill.music_genre}
+                        td #{skill.complexity_level}
+                        td #{skill.execution_level}
+                        td #{skill.description}
+                    

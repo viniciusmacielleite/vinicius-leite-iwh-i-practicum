@@ -1,0 +1,35 @@
+doctype html
+html 
+    head 
+        title= `${title}`
+        meta(name="viewport" content="width=device-width, initial-scale=1")
+        link(rel="stylesheet", href="/css/style.css")
+    body    
+        h1= "Skills"
+        table
+            thead
+                tr
+                    th Name
+                    th Technique(s)
+                    th Music genre(s)
+                    th Complexity level
+                    th Execution level
+                    th Description
+            tbody
+                each skill in data
+                    tr
+                        td #{skill.name}
+                        td 
+                            ul
+                                each item in skill.technique
+                                    li * #{item.label}
+                        td 
+                            ul
+                                each item in skill.music_genre
+                                    li * #{item.label}
+                        td #{skill.complexity_level.label}
+                        td #{skill.execution_level.label}
+                        td #{skill.description}
+
+
+                    
