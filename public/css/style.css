@@ -104,3 +104,17 @@ table th:nth-child(5) {
 table th:nth-child(6) { 
     width: 30%; 
 }
+
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+label {
+    margin-bottom: 10px;
+}
+
+#skillsTable {
+    margin-top: 20px;
+}

@@ -4,24 +4,38 @@ html
         title= `${title}`
         meta(name="viewport" content="width=device-width, initial-scale=1")
         link(rel="stylesheet", href="/css/style.css")
+        script(src="/scripts/updates.js")
     body    
         h1= "Update Custom Object Form | Integrating With HubSpot I Practicum"
-        table
+        form(method='POST' action='/update-cobj')
+            label(for='skillSelect') Select a skill:
+            select(id='skillSelect' name='selectedSkill' onchange='onSkillSelect()')
+                option(value='') -- Choose one --
+                each skill in data.skillsData
+                    option(value=skill.name) #{skill.name}
+        table(id='skillsTable' style='display: none;')
             thead
-                tr
+                tr(id='skillsTableHead' style='display: none;')
                     th Name
-                    th Technique
-                    th Music genre
+                    th Technique(s)
+                    th Music genre(s)
                     th Complexity level
                     th Execution level
                     th Description
             tbody
-                each skill in data
-                    tr
+                each skill in data.skillsData
+                    tr(id=skill.name style='display: none;')
                         td #{skill.name}
-                        td #{skill.technique}
-                        td #{skill.music_genre}
-                        td #{skill.complexity_level}
-                        td #{skill.execution_level}
+                        td 
+                            ul
+                                each item in skill.technique
+                                    li * #{item.label}
+                        td 
+                            ul
+                                each item in skill.music_genre
+                                    li * #{item.label}
+                        td #{skill.complexity_level.label}
+                        td #{skill.execution_level.label}
                         td #{skill.description}
-                    
+
+                //- button(type='submit') Update
