@@ -2,26 +2,132 @@ doctype html
 html 
     head 
         title= `${title}`
+        meta(http-equiv='Cache-Control' content='no-store, no-cache, must-revalidate, post-check=0, pre-check=0')
+        meta(http-equiv='Pragma' content='no-cache')
+        meta(http-equiv='Expires' content='-1')
         meta(name="viewport" content="width=device-width, initial-scale=1")
         link(rel="stylesheet", href="/css/style.css")
-    body    
+        script(src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js")
+        script(src="/scripts/updates.js")
+    body(onload='setForms("update"), setForms("create")')
         h1= "Update Custom Object Form | Integrating With HubSpot I Practicum"
-        table
-            thead
-                tr
-                    th Name
-                    th Technique
-                    th Music genre
-                    th Complexity level
-                    th Execution level
-                    th Description
-            tbody
-                each skill in data
+        br
+        div(style="text-align: center;")
+            a(href="/") Return to the homepage
+        br
+        br
+        div(class='tabSelect')
+            button(class='tab-button' onclick="openTab('updateTab')") Update a Skill
+            button(class='tab-button' onclick="openTab('createTab')") Create a Skill
+        div(id="updateTab" style="display: none;")
+            h2= "Update a Skill"
+            div(class='skillSelect')
+                label(for='skillSelect') Select a skill:
+                select(id='skillSelect' name='selectedSkill' onchange='onSkillSelect()')
+                    option(value='') -- Choose one --
+                    each skill in data.skillsData
+                        option(value=skill.name) #{skill.name}
+            table(id='updateSkillsTable' style='display: none;')
+                thead
+                    tr(id='updateSkillsTableHead' style='display: none;')
+                        th Technique(s)
+                        th Music genre(s)
+                        th Complexity level
+                        th Execution level
+                        th Name and Description
+                        th Action
+                        th(style='display: none;') Hidden Column 
+                tbody
+                    each skill, index in data.skillsData
+                        tr(id=skill.name style='display: none;')
+                            form(method='POST' class='form-update' id=`form-update-${index}` action='/update-cobj')
+                                td
+                                    div(class='option-container' name=`update-technique-${index}` id=`update-checkbox-technique-div-${index}`)
+                                        each option in data.propertiesData.technique.options
+                                            div(class='option-label-checkbox')
+                                                input(type='checkbox' class='update-checkbox' name='technique' value=option.value checked=skill.technique.some(technique => technique.value == option.value))
+                                                label #{option.label}                            
+                                td
+                                    div(class='option-container' name=`update-music_genre-${index}` id=`update-checkbox-music_genre-div-${index}`)
+                                        each option in data.propertiesData.music_genre.options
+                                            div(class='option-label-checkbox')
+                                                input(type='checkbox' class='update-checkbox' name='music_genre' value=option.value checked=skill.music_genre.some(genre => genre.value == option.value))
+                                                label #{option.label}                        
+                                td
+                                    div(class='option-container' name=`update-complexity_level-${index}` id=`update-radio-complexity_level-div-${index}`)
+                                        each option in data.propertiesData.complexity_level.options
+                                            div(class='option-label-radio')
+                                                input(type='radio' class='update-radio' name='complexity_level' value=option.value checked=skill.complexity_level.value==option.value)
+                                                label #{option.label}                        
+                                td
+                                    div(class='option-container' name=`update-execution_level-${index}` id=`update-radio-execution_level-div-${index}`)
+                                        each option in data.propertiesData.execution_level.options
+                                            div(class='option-label-radio')
+                                                input(type='radio' class='update-radio' name='execution_level' value=option.value checked=skill.execution_level.value==option.value)
+                                                label #{option.label}                         
+                                td
+                                    label Name:
+                                    input(type='text' name='name' class=`update-name-${index}` value=skill.name required)
+                                    p.error(id=`update-nameError-${index}`)
+                                    br
+                                    p.error(id=`update-textareaError-${index}`)
+                                    label Description:
+                                    textarea(id='description' class=`update-textarea-${index}` name='description' required) #{skill.description}
+                                td
+                                    button(type='submit' id=`update-button-${index}` class='update-button' name='submitbutton' value='update' disabled) Update
+                                td(style='display: none;')
+                                    input(type='text' name='id' id=`update-id-${index}` value=skill.id)
+                                    input(type='text' name='operation' id=`update-operation-${index}` value='update')
+        br
+        br
+        div(id="createTab" style="display: none;")
+            h2= "Create a Skill"
+            table(id='createSkillsTable')
+                thead
+                    tr(id='createSkillsTableHead')
+                        th Technique(s)
+                        th Music genre(s)
+                        th Complexity level
+                        th Execution level
+                        th Name and Description
+                        th Action
+                        th(style='display: none;') Hidden Column
+                tbody
                     tr
-                        td #{skill.name}
-                        td #{skill.technique}
-                        td #{skill.music_genre}
-                        td #{skill.complexity_level}
-                        td #{skill.execution_level}
-                        td #{skill.description}
-                    
+                        form(method='POST' class='form-create' id=`form-create-0` action='/update-cobj')
+                            td
+                                div(class='option-container' name=`technique-0` id=`create-checkbox-technique-div-0`)
+                                    each option in data.propertiesData.technique.options
+                                        div(class='option-label-checkbox')
+                                            input(type='checkbox' class='create-checkbox' name='technique' value=option.value)
+                                            label #{option.label}                            
+                            td
+                                div(class='option-container' name=`music_genre-0` id=`create-checkbox-music_genre-div-0`)
+                                    each option in data.propertiesData.music_genre.options
+                                        div(class='option-label-checkbox')
+                                            input(type='checkbox' class='create-checkbox' name='music_genre' value=option.value)
+                                            label #{option.label}                        
+                            td
+                                div(class='option-container' name=`create-complexity_level-0` id=`create-radio-complexity_level-div-0`)
+                                    each option in data.propertiesData.complexity_level.options
+                                        div(class='option-label-radio')
+                                            input(type='radio' class='create-radio' name='complexity_level' value=option.value)
+                                            label #{option.label}                        
+                            td
+                                div(class='option-container' name=`create-execution_level-0` id=`create-radio-execution_level-div-0`)
+                                    each option in data.propertiesData.execution_level.options
+                                        div(class='option-label-radio')
+                                            input(type='radio' class='create-radio' name='execution_level' value=option.value)
+                                            label #{option.label}                         
+                            td
+                                label Name:
+                                input(type='text' name='name' class=`create-name-0` required)
+                                p.error(id=`create-nameError-0`)
+                                br
+                                p.error(id=`create-textareaError-0`)
+                                label Description:
+                                textarea(id='description' class=`create-textarea-0` name='description' required)
+                            td
+                                button(type='submit' id=`create-button-0` class='create-button' name='submitbutton' value='create' disabled) Create
+                            td(style='display: none;')
+                                input(type='text' name='operation' id=`create-operation-0` value='create')
