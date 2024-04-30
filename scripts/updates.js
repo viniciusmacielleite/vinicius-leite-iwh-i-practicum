@@ -1,7 +1,13 @@
 let textInputsValue = [];
 
+function openTab(tabName) {
+    document.getElementById('updateTab').style.display = 'none';
+    document.getElementById('createTab').style.display = 'none';
+    document.getElementById(tabName).style.display = 'block';
+}
+
 function setTextInputs() {
-    let textInputs = document.querySelectorAll(`input[type=text].update-name`);
+    let textInputs = document.querySelectorAll(`input[type=text][class^="update-name"]`);
 
     textInputs.forEach(function(input) {
         textInputsValue.push(input.value);
@@ -37,114 +43,8 @@ function setForms(operation) {
         let initialValues = Array.from(nodeArrayMap);
         let checkboxDivNames = ['technique', 'music_genre'];
         let radioDivNames = ['complexity_level', 'execution_level'];
+        let textDivNames = ['name', 'description', 'operation'];
         let checkboxColumnsNotEmpty = true;
-
-        form.addEventListener('submit', function(event) {
-            event.preventDefault();
-            let operationEvent = operation;
-            let checkboxDivNamesEvent = checkboxDivNames;
-            let radioDivNamesEvent = radioDivNames;
-            let breakLoop = false;
-            let divNameAlert = null;
-            let notEmptyValidator = true;
-
-            for (let divName of checkboxDivNamesEvent) 
-            {
-                let divCheckboxes = document.getElementById(`${operationEvent}-checkbox-${divName}-div-${index}`);
-                let checkboxes = divCheckboxes.querySelectorAll(`input[type=checkbox].${operationEvent}-checkbox`);
-                let checkedCount = Array.from(checkboxes).filter(input => input.checked).length;
-                if (checkedCount === 0 && !this.checked)
-                {
-                    divNameAlert = divName.replace('_', ' ');
-                    breakLoop = true;
-                    break;
-                }
-            };
-
-            if (breakLoop)
-            {
-                alert(`Please select at least one option of ${divNameAlert}!`);
-                notEmptyValidator = false;
-            }
-
-            if (notEmptyValidator)
-            {
-                for (let divName of radioDivNamesEvent)
-                {
-                    let divRadios = document.getElementById(`${operationEvent}-radio-${divName}-div-${index}`);
-                    let radios = divRadios.querySelectorAll(`input[type=radio].${operationEvent}-radio`);
-                    let radiosCount = Array.from(radios).filter(input => input.checked).length;
-                    if (radiosCount === 0 && !this.checked)
-                    {
-                        divNameAlert = divName.replace('_', ' ');
-                        breakLoop = true;
-                        break;
-                    }
-                }
-
-                if (breakLoop)
-                {
-                    alert(`Please select at least one option of ${divNameAlert}!`);
-                    notEmptyValidator = false;
-                }
-
-                if (notEmptyValidator)
-                {
-                    let formData = new FormData(event.target);
-                    let formDataObject = {};
-                    formDataObject.operation = operationEvent;
-                    
-                    for (let [key, value] of formData.entries())
-                    {
-                        formDataObject[key] = value;
-                    }
-
-                    for (let item in formDataObject)
-                    {
-                        if (formDataObject[item] === null || formDataObject[item] === '' || formDataObject[item] === undefined) 
-                        {
-                            let message = '';
-                            if(item == 'name' || item == 'description')
-                                message = `The ${item} can't be empty!`;
-                            else
-                                message = `Please fill in at least one ${item.replace('_', ' ')}!`;
-                
-                            notEmptyValidator = false;
-                            alert(message);
-                            break;
-                        }
-                    }
-
-                    if (notEmptyValidator)
-                    {
-                        fetch('/update-cobj', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify(formDataObject),
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.error)
-                            {
-                                alert(data.error.message);
-                            } 
-                            else
-                            {
-                                alert(`Skill "${formDataObject.name}" ${operationEvent}d with success!`);
-                                window.location.reload(true);
-                            }
-                        })
-                        .catch(error => {
-                            console.log(error);
-                            alert('Error:', error);
-                        });
-                        
-                    }
-                }
-            }
-        });
 
         if (operation == 'update')
         {
@@ -278,6 +178,111 @@ function setForms(operation) {
                     }
                 }
             });
+        });
+
+        $(`form-${operation}-${index}`).on('submit', function(event) {
+            event.preventDefault();
+            let operationEvent = operation;
+
+            let formData = new FormData(event.target);
+            let formDataObject = {};
+            formDataObject.operation = operation;
+
+            for (let [key, value] of formData.entries()) {
+                if (formDataObject[key] !== undefined) 
+                {
+                    if (!Array.isArray(formDataObject[key]))
+                    {
+                        formDataObject[key] = [formDataObject[key]];
+                    }
+                    formDataObject[key].push(value);
+                } 
+                else 
+                {
+                    formDataObject[key] = value;
+                }
+            }
+
+            let checkboxDivNamesEvent = checkboxDivNames;
+            let radioDivNamesEvent = radioDivNames;
+            let breakLoop = false;
+            let divNameAlert = null;
+            let notEmptyValidator = true;
+
+            for (let divName of checkboxDivNamesEvent) 
+            {
+                let divCheckboxes = document.getElementById(`${operationEvent}-checkbox-${divName}-div-${index}`);
+                let checkboxes = divCheckboxes.querySelectorAll(`input[type=checkbox].${operationEvent}-checkbox`);
+                let checkedCount = Array.from(checkboxes).filter(input => input.checked).length;
+                if (checkedCount === 0 && !this.checked)
+                {
+                    divNameAlert = divName.replace('_', ' ');
+                    breakLoop = true;
+                    break;
+                }
+            };
+
+            if (breakLoop)
+            {
+                alert(`Please select at least one option of ${divNameAlert}!`);
+                notEmptyValidator = false;
+            }
+
+            if (notEmptyValidator)
+            {
+                for (let divName of radioDivNamesEvent)
+                {
+                    let divRadios = document.getElementById(`${operationEvent}-radio-${divName}-div-${index}`);
+                    let radios = divRadios.querySelectorAll(`input[type=radio].${operationEvent}-radio`);
+                    let radiosCount = Array.from(radios).filter(input => input.checked).length;
+                    if (radiosCount === 0 && !this.checked)
+                    {
+                        divNameAlert = divName.replace('_', ' ');
+                        breakLoop = true;
+                        break;
+                    }
+                }
+
+                if (breakLoop)
+                {
+                    alert(`Please select at least one option of ${divNameAlert}!`);
+                    notEmptyValidator = false;
+                }
+
+                if (notEmptyValidator)
+                {
+                    for (let item in formDataObject)
+                    {
+                        if (formDataObject[item] === null || formDataObject[item] === '' || formDataObject[item] === undefined) 
+                        {
+                            let message = '';
+                            if(item == 'name' || item == 'description')
+                                message = `The ${item} can't be empty!`;
+                            else
+                                message = `Please fill in at least one ${item.replace('_', ' ')}!`;
+                
+                            notEmptyValidator = false;
+                            alert(message);
+                            break;
+                        }
+                    }
+
+                    if (notEmptyValidator)
+                    {
+                        $.ajax({
+                            type: $(this).attr('method'),
+                            url: $(this).attr('action'),
+                            data: $(this).serialize(),
+                            success: function(data) {
+
+                            },
+                            error: function(jqXHR, textStatus, errorThrown) {
+                                console.log(errorThrown);
+                            }
+                        });
+                    }
+                }
+            }
         });
     });
 }

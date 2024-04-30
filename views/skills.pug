@@ -2,10 +2,20 @@ doctype html
 html 
     head 
         title= `${title}`
+        meta(http-equiv='Cache-Control' content='no-store, no-cache, must-revalidate, post-check=0, pre-check=0')
+        meta(http-equiv='Pragma' content='no-cache')
+        meta(http-equiv='Expires' content='-1')
         meta(name="viewport" content="width=device-width, initial-scale=1")
         link(rel="stylesheet", href="/css/style.css")
-    body    
-        h1= "Skills"
+    body
+        h1= "List Custom Objects | Integrating With HubSpot I Practicum"
+        br
+        h2= "Skills"
+        br
+        div(style="text-align: center;")
+            a(href="/update-cobj") Add/Update this table
+        br
+        br 
         table(id='skillsTable')
             thead
                 tr

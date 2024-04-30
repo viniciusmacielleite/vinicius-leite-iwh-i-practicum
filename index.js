@@ -13,13 +13,26 @@ app.use('/scripts', express.static(__dirname + '/scripts'));
 app.use(express.static(__dirname + '/public'));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use((req, res, next) => {
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+    next()
+});
 
 // TODO: ROUTE 1 - Create a new app.get route for the homepage to call your custom object data. Pass this data along to the front-end and create a new pug template in the views folder.
 
 app.get('/', async (req, res) => {
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '-1');
+
     getSkillsData()
     .then(resp => {
         if(resp) {
+            res.set('Cache-Control', 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
+            res.set('Pragma', 'no-cache');
+            res.set('Expires', '-1');
             res.render('skills', { title: 'Skills | HubSpot APIs', data: resp.skillsData });
         }
     })
@@ -30,14 +43,26 @@ app.get('/', async (req, res) => {
 
 // TODO: ROUTE 2 - Create a new app.get route for the form to create or update new custom object data. Send this data along in the next route.
 
-app.get('/update-cobj', async (req, res) => {
-    res.set('Cache-Control', 'no-store');
+app.get('/update-cobj-refresh', (req, res) => {
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '-1');
+    res.redirect('/');
+});
 
+app.get('/update-cobj', async (req, res) => {
     try 
     { 
+        res.set('Cache-Control', 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
+        res.set('Pragma', 'no-cache');
+        res.set('Expires', '-1');
+
         getSkillsData()
         .then(resp => {
             if(resp) {
+                res.set('Cache-Control', 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
+                res.set('Pragma', 'no-cache');
+                res.set('Expires', '-1');
                 res.render('updates', { title: 'UpSert Skills | HubSpot APIs', data: {skillsData: resp.skillsData, propertiesData: resp.propertiesData} });
             }
         })
@@ -59,7 +84,6 @@ app.get('/update-cobj', async (req, res) => {
             res.status(500).json({ error: 'An error occurred while loading the update route.' });
         }
     }
-
 });
 
 // TODO: ROUTE 3 - Create a new app.post route for the custom objects form to create or update your custom object data. Once executed, redirect the user to the homepage.
@@ -94,7 +118,17 @@ app.post('/update-cobj', async (req, res) => {
                 { 
                     await axios.patch(updateSkill, propertiesObject, { headers, httpsAgent: agent } )
                     .then(async (response) => {
-                        res.json({ message: `Skill "${values.name}" updated with success!` });
+                        res.send(
+                            `
+                            <button id="refreshButton" style="padding: 10px 20px; font-size: 16px;">Go to List Skills</button>
+                            <script>
+                                alert("Skill '${values.name}' updated with success! See your updated Skill in the Skill list."); 
+                                document.getElementById('refreshButton').addEventListener('click', function() {
+                                    window.location.assign('/update-cobj-refresh');
+                                });
+                            </script>
+                            `
+                        );
                     });
                 } 
                 catch(err) 
@@ -116,7 +150,17 @@ app.post('/update-cobj', async (req, res) => {
                 try { 
                     await axios.post(createSkill, propertiesObject, { headers, httpsAgent: agent } )
                     .then(async (response) => {
-                        res.json({ message: `Skill "${values.name}" created with success!` });
+                        res.send(
+                            `
+                            <button id="refreshButton" style="padding: 10px 20px; font-size: 16px;">Go to List Skills</button>
+                            <script>
+                                alert("Skill '${values.name}' created with success! See your new Skill in the Skill list."); 
+                                document.getElementById('refreshButton').addEventListener('click', function() {
+                                    window.location.assign('/update-cobj-refresh');
+                                });
+                            </script>
+                            `
+                        );
                     });
                 } 
                 catch(err) {
